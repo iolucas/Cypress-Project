@@ -1,0 +1,21 @@
+{
+  "name": "curso-cypress-updated",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "cypress open",
+    "test": "cypress test"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@cypress/xpath": "^2.0.1",
+    "cypress": "^13.6.1",
+    "dayjs": "^1.11.9"
+  },
+  "devDependencies": {
+    "cypress-xpath": "^2.0.1"
+  }
+}
