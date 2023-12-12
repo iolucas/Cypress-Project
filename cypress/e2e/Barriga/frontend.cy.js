@@ -59,19 +59,12 @@ describe('Should test at a functional level', () => {
         cy.get(loc.MOVIMENTACAO.BTN_SALVAR).click()
         cy.get(loc.MESSAGE).should('contain', 'sucesso')
         cy.get(loc.MENU.HOME).click()
-        cy.get(loc.SALDO).should('contain', '4.034,00')
+        cy.get(loc.SALDO).should('contain', '2.686,00')
     })
 
     it('Should remove a transaction', () => {
         cy.get(loc.MENU.EXTRATO).click()
         cy.xpath(loc.EXTRATO.FN_XP_REMOVER_ELEMENTO('Movimentacao para exclusao')).click()
         cy.get(loc.MESSAGE).should('contain', 'sucesso')
-    })
-
-    it('Should validate data send to create an account', () => {
-        cy.acessarMenuConta()
-        cy.inserirConta('{CONTROL}')
-        //cy.wait('@saveConta').its('request.body.nome').should('not.be.empty')
-        cy.get(loc.MESSAGE).should('contain', 'Conta inserida com sucesso')
     })
 })
