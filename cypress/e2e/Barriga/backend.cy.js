@@ -4,7 +4,17 @@ describe("Should test at a functional level", () => {
   before(() => {});
   beforeEach(() => {});
 
-  it("Should create an account", () => {});
+  it("Should create an account", () => {
+    cy.request({
+        method: 'POST',
+        url: 'https://barrigarest.wcaquino.me/signin',
+        body: {
+            email: "yonore2792@newcupon.com",
+            redirecionar: false,
+            senha: "96523345"
+        }
+    }).its('body.token').should('not.be.empty')
+  });
 
   it("Should update an account", () => {});
 
