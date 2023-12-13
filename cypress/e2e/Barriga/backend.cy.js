@@ -1,31 +1,32 @@
 /// <reference types="cypress" />
 
 describe("Should test at a functional level", () => {
-  before(() => {});
-  beforeEach(() => {});
+  let token;
+  before(() => {
+    cy.getToken("yonore2792@newcupon.com", "96523345").then(tkn => {
+      token = tkn;
+    });
+  });
+  beforeEach(() => {
+    cy.resetAPIRest()
+  });
 
   it("Should create an account", () => {
     cy.request({
+      url: "https://barrigarest.wcaquino.me/contas",
       method: "POST",
-      url: "https://barrigarest.wcaquino.me/signin",
-      body: {
-        email: "yonore2792@newcupon.com",
-        redirecionar: false,
-        senha: "96523345",
+      headers: {
+        Authorization: `JWT ${token}`,
       },
-    }).its("body.token").should("not.be.empty")
-      .then((token) => {
-        cy.request({
-          url: "https://barrigarest.wcaquino.me/contas",
-          method: "POST",
-          headers: {
-            Authorization: `JWT ${token}`
-          },
-          body: {
-            nome: "Conta via APIrest",
-          },
-        }).then((res) => console.log(res));
-      });
+      body: {
+        nome: "Conta via APIrest",
+      },
+    }).as("response");
+    cy.get("@response").then((res) => {
+      expect(res.status).to.be.equal(201);
+      expect(res.body).to.have.property("id");
+      expect(res.body).to.have.property("nome", "Conta via APIrest");
+    });
   });
 
   it("Should update an account", () => {});
