@@ -24,6 +24,7 @@ describe('Should test at a functional level', () => {
         cy.xpath(loc.CONTAS.FN_XP_BTN_ALTERAR('Conta para alterar')).click()
         cy.get(loc.CONTAS.NOME).clear().type('Conta alterada')
         cy.get(loc.CONTAS.BTN_SALVAR).click()
+        cy.wait(1000)
         cy.get(loc.MESSAGE).should('contain', 'Conta atualizada com sucesso')
     })
 
@@ -50,7 +51,6 @@ describe('Should test at a functional level', () => {
     it('Should get balance', () => {
         cy.xpath(loc.SALDO.FN_XP_SALDO_CONTA('Conta para saldo')).should('contain', '534,00')
         cy.get(loc.MENU.EXTRATO).click()
-        cy.wait(1000)
         cy.xpath(loc.EXTRATO.FN_XP_ALTERAR_ELEMENTO('Movimentacao 1, calculo saldo')).click()
         cy.get(loc.MOVIMENTACAO.DESCRICAO).should('have.value', 'Movimentacao 1, calculo saldo')
         cy.get(loc.MOVIMENTACAO.STATUS).click()

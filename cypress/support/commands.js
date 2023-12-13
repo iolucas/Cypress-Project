@@ -13,29 +13,27 @@ Cypress.Commands.add("resetApp", () => {
   cy.get(loc.MENU.RESET).click();
 });
 
-Cypress.Commands.add("getToken", (user, passwd) => {
-  cy.request({
-    method: "POST",
-    url: "https://barrigarest.wcaquino.me/signin",
-    body: {
-      email: user,
-      redirecionar: false,
-      senha: passwd,
-    },
-  })
-    .its("body.token")
-    .should("not.be.empty")
-    .then(token => {
-      return token;
-    });
-});
+Cypress.Commands.add('getToken', (user, passwd) => {
+    cy.request({
+        method: 'POST',
+        url: '/signin',
+        body: {
+            email: user,
+            redirecionar: false,
+            senha: passwd
+        }
+    }).its('body.token').should('not.be.empty')
+        .then(token => {
+            return token
+        })
+})
 
 Cypress.Commands.add("resetAPIRest", () => {
   cy.getToken("yonore2792@newcupon.com", "96523345").then(token => {
     cy.request({
       method: "GET",
-      url: "https://barrigarest.wcaquino.me/reset",
+      url: "/reset",
       headers: { Authorization: `JWT ${token}`},
-    });
+    }).its('status').should('be.equal', 200)
   });
 });
