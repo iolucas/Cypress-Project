@@ -1,12 +1,5 @@
 import loc from './locators'
 
-Cypress.Commands.add('clickAlert', (locator, message) => {
-    cy.get(locator).click()
-    cy.on('window:alert', msg => {
-        expect(msg).to.be.equal(message)
-    })
-})
-
 Cypress.Commands.add('login', (user, passwd) => {
     cy.visit('https://barrigareact.wcaquino.me/')
     cy.get(loc.LOGIN.USER).type(user)
