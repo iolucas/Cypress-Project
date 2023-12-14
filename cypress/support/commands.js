@@ -12,7 +12,7 @@ Cypress.Commands.add("resetApp", () => {
   cy.get(loc.MENU.SETTINGS).click();
   cy.get(loc.MENU.RESET).click();
 });
-
+// comando para coletar o token através do login
 Cypress.Commands.add('getToken', (user, passwd) => {
     cy.request({
         method: 'POST',
@@ -37,3 +37,20 @@ Cypress.Commands.add("resetAPIRest", () => {
     }).its('status').should('be.equal', 200)
   });
 });
+
+Cypress.Commands.add("getContaByName", name => {
+  cy.getToken("yonore2792@newcupon.com", "96523345").then(token => {
+    cy.request({
+      method: "GET",
+      url: "/contas",
+      headers: {
+        Authorization: `JWT ${token}`,
+      },
+      qs: {
+        nome: name,
+      },
+    }).then(res => {
+      return res.body[0].id
+    })
+  })
+})
