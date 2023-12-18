@@ -2,14 +2,12 @@
 
 import loc from '../../support/locators'
 import '../../support/commandsContas'
-import '../../support/commands'
 
 describe('Should test at a functional level', () => {
     // fazer login antes de realizar cada suite de teste
     beforeEach(() => {
         cy.login('yonore2792@newcupon.com', '96523345')
         cy.resetApp()
-        cy.get(loc.MENU.HOME).click()
     })
 
     it('Should create an account', () => {

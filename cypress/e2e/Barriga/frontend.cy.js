@@ -3,6 +3,7 @@
 import loc from "../../support/locators";
 import "../../support/commandsContas";
 import "../../support/commands";
+import buildEnv from "../../support/buildEnv";
 
 describe("Should test at a functional level", () => {
   // fazer login antes de realizar cada suite de teste
@@ -10,9 +11,10 @@ describe("Should test at a functional level", () => {
     cy.clearLocalStorage();
   });
   beforeEach(() => {
+    buildEnv()
     cy.login("yonore2792@newcupon.com", "96523345");
-    cy.resetApp();
     cy.get(loc.MENU.HOME).click();
+    // cy.resetApp();
   });
 
   it("Should create an account", () => {
@@ -33,13 +35,7 @@ describe("Should test at a functional level", () => {
     cy.get(loc.MESSAGE).should("contain", "Conta inserida com sucesso");
   });
 
-  it.only("Should update an account", () => {
-    cy.intercept("GET", "/contas", {
-      body: [
-        {id: 1, nome: "Conta falsa 1", visivel: true, usuario_id: 1},
-        {id: 2, nome: "Conta falsa 2", visivel: true, usuario_id: 1},
-      ],
-    }).as("contas");
+  it("Should update an account", () => {
     cy.intercept('PUT', '/contas/**',{
       body: [
         {id: 1, nome: "Conta alterada", visivel: true, usuario_id: 1}
@@ -54,6 +50,10 @@ describe("Should test at a functional level", () => {
   });
 
   it("Should not create an account with same name", () => {
+    cy.intercept('POST','/contas', {
+      body: {"error": "Já existe uma conta com esse nome!"},
+      statusCode: 400
+    }).as('saveContaMesmoNome')
     cy.acessarMenuConta();
     cy.get(loc.CONTAS.NOME).type("Conta mesmo nome");
     cy.get(loc.CONTAS.BTN_SALVAR).click();
@@ -61,45 +61,102 @@ describe("Should test at a functional level", () => {
   });
 
   it("Should create a transaction", () => {
+    cy.intercept('POST','/transacoes', {
+      body: {
+        "id": 1875474,
+        "descricao": "teste",
+        "envolvido": "asdas",
+        "observacao": null,
+        "tipo": "REC",
+        "data_transacao": "2023-12-18T03:00:00.000Z",
+        "data_pagamento": "2023-12-18T03:00:00.000Z",
+        "valor": "232.00",
+        "status": false,
+        "conta_id": 2000521,
+        "usuario_id": 44851,
+        "transferencia_id": null,
+        "parcelamento_id": null
+    }
+    })
+    cy.intercept('GET','/extrato/**', {
+      fixture: 'movimentacaoSalva.json'
+    })
     cy.get(loc.MENU.MOVIMENTACAO).click();
     cy.get(loc.MOVIMENTACAO.DESCRICAO).type("Desc");
     cy.get(loc.MOVIMENTACAO.VALOR).type("123");
     cy.get(loc.MOVIMENTACAO.INTERESSADO).type("Inter");
-    cy.get(loc.MOVIMENTACAO.CONTA).select("Conta para movimentacoes");
+    cy.get(loc.MOVIMENTACAO.CONTA).select("Conta falsa 2");
     cy.get(loc.MOVIMENTACAO.STATUS).click();
+    
     cy.get(loc.MOVIMENTACAO.BTN_SALVAR).click();
     cy.get(loc.MESSAGE).should("contain", "sucesso");
+    
     cy.get(loc.EXTRATO.LINHAS).should("have.length", 7);
     cy.xpath(loc.EXTRATO.FN_XP_BUSCA_ELEMENTO("Desc", "123")).should("exist");
   });
 
   it("Should get balance", () => {
-    cy.xpath(loc.SALDO.FN_XP_SALDO_CONTA("Conta para saldo")).should(
-      "contain",
-      "534,00"
-    );
+    cy.intercept('GET','/transacoes/**',{
+      body: {
+        "conta": "Conta para saldo",
+        "id": 1875489,
+        "descricao": "Movimentacao 1, calculo saldo",
+        "envolvido": "CCC",
+        "observacao": null,
+        "tipo": "REC",
+        "data_transacao": "2023-12-18T03:00:00.000Z",
+        "data_pagamento": "2023-12-18T03:00:00.000Z",
+        "valor": "3500.00",
+        "status": false,
+        "conta_id": 2000643,
+        "usuario_id": 44851,
+        "transferencia_id": null,
+        "parcelamento_id": null
+      }
+    })
+    cy.intercept('PUT','/transacoes/**',{
+      body: {
+        "conta": "Conta para saldo",
+        "id": 1875489,
+        "descricao": "Movimentacao 1, calculo saldo",
+        "envolvido": "CCC",
+        "observacao": null,
+        "tipo": "REC",
+        "data_transacao": "2023-12-18T03:00:00.000Z",
+        "data_pagamento": "2023-12-18T03:00:00.000Z",
+        "valor": "3500.00",
+        "status": false,
+        "conta_id": 2000643,
+        "usuario_id": 44851,
+        "transferencia_id": null,
+        "parcelamento_id": null
+      }
+    })
+    cy.xpath(loc.SALDO.FN_XP_SALDO_CONTA("Conta falsa 1")).should("contain", "100,00");
     cy.get(loc.MENU.EXTRATO).click();
-    cy.xpath(
-      loc.EXTRATO.FN_XP_ALTERAR_ELEMENTO("Movimentacao 1, calculo saldo")
-    ).click();
-    cy.get(loc.MOVIMENTACAO.DESCRICAO).should(
-      "have.value",
-      "Movimentacao 1, calculo saldo"
-    );
+    cy.xpath(loc.EXTRATO.FN_XP_ALTERAR_ELEMENTO("Movimentacao 1, calculo saldo")).click();
+    cy.get(loc.MOVIMENTACAO.DESCRICAO).should("have.value", "Movimentacao 1, calculo saldo");
     cy.get(loc.MOVIMENTACAO.STATUS).click();
     cy.get(loc.MOVIMENTACAO.BTN_SALVAR).click();
     cy.get(loc.MESSAGE).should("contain", "sucesso");
+
+    cy.intercept("GET", "/saldo", {
+      body: [
+        { conta_id: 999, conta: "Conta falsa 1", saldo: "4034.00" },
+        { conta_id: 9999, conta: "Conta falsa 2", saldo: "1000000.00" },
+      ],
+    }).as('saldoFinal')
+
     cy.get(loc.MENU.HOME).click();
-    cy.xpath(loc.SALDO.FN_XP_SALDO_CONTA("Conta para saldo")).should(
-      "contain",
-      "4.034,00"
-    );
+    cy.xpath(loc.SALDO.FN_XP_SALDO_CONTA("Conta falsa 1")).should("contain", "4.034,00");
   });
   it("Should remove a transaction", () => {
+    cy.intercept('DELETE','/transacoes/**',{
+      statusCode: 204
+    }, 
+    ).as('del')
     cy.get(loc.MENU.EXTRATO).click();
-    cy.xpath(
-      loc.EXTRATO.FN_XP_REMOVER_ELEMENTO("Movimentacao para exclusao")
-    ).click();
+    cy.xpath(loc.EXTRATO.FN_XP_REMOVER_ELEMENTO("Movimentacao para exclusao")).click();
     cy.get(loc.MESSAGE).should("contain", "sucesso");
   });
 });
