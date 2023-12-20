@@ -21,7 +21,7 @@ describe('Work with time', () => {
 
     it('Goes to the future', () => {
         cy.get('#buttonTimePassed').click()
-        cy.get('#resultado > span').should('contain', '1695')
+        cy.get('#resultado > span').should('contain', '1703')
         cy.get('#resultado > span').invoke('text').then(t => {
             const number = parseInt(t)
             cy.wrap(number).should('gt', 1587933052610)

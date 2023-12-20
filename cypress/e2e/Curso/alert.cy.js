@@ -3,18 +3,14 @@
 describe('Work with alerts', () => {
     beforeEach(() => {
         cy.visit('https://wcaquino.me/cypress/componentes.html')
-    })
-
-    beforeEach(() => {
         cy.reload()
     })
 
     it('Alert', () => {
-        // cy.get('#alert').click()
-        // cy.on('window:alert', msg => {
-        //     expect(msg).to.be.equal('Alert Simples')
-        // })
-        cy.clickAlert('#alert', 'Alert Simples')
+        cy.get('#alert').click()
+        cy.on('window:alert', msg => {
+            expect(msg).to.be.equal('Alert Simples')
+        })
     })
 
     it('Alert com mock', () => {
